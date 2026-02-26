@@ -1,0 +1,147 @@
+-- Tabla de Personal Médico
+CREATE TABLE PersonalMedico (
+    IdMedico INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(150) NOT NULL,
+    Licencia VARCHAR(20) UNIQUE NOT NULL,
+    Especialidad VARCHAR(50),
+    Turno VARCHAR(30),
+    Activo BIT DEFAULT 1 -- 1 para Habilitado, 0 para Inhabilitado
+);
+
+-- Procedimiento para registrar
+CREATE PROCEDURE sp_RegistrarMedico
+    @Nom VARCHAR(150), @Lic VARCHAR(20), @Esp VARCHAR(50), @Tur VARCHAR(30)
+AS
+BEGIN
+    INSERT INTO PersonalMedico (Nombre, Licencia, Especialidad, Turno)
+    VALUES (@Nom, @Lic, @Esp, @Tur);
+END;
+
+
+
+
+ALTER TABLE Paciente ADD Traslado VARCHAR(20) DEFAULT 'Ninguno';
+
+-- Procedimiento para modificar (incluyendo traslado)
+CREATE OR ALTER PROCEDURE sp_ModificarPaciente
+    @Dni CHAR(8), @Nom VARCHAR(100), @Pat VARCHAR(100), 
+    @Mat VARCHAR(100), @Cel VARCHAR(12), @Tra VARCHAR(20)
+AS
+BEGIN
+    UPDATE Paciente SET 
+        Nombres = @Nom, ApelPaterno = @Pat, 
+        ApelMaterno = @Mat, Celular = @Cel, Traslado = @Tra
+    WHERE Dni = @Dni;
+END;
+
+
+
+ALTER TABLE Paciente ADD FechaNacimiento DATETIME;
+GO
+-- También agrega 'Traslado' si te marcó error anteriormente
+ALTER TABLE Paciente ADD Traslado VARCHAR(50);
+GO
+
+
+-- 1. Eliminamos la columna actual si ya existe
+ALTER TABLE Paciente DROP COLUMN NumeroOrden;
+GO
+
+-- 2. La volvemos a crear como IDENTITY (empieza en 1 y aumenta de 1 en 1)
+-- El formato 001 lo manejaremos en C# o con una columna calculada
+ALTER TABLE Paciente ADD NumeroOrden INT IDENTITY(1,1) PRIMARY KEY;
+GO
+
+
+
+
+
+CREATE OR ALTER PROCEDURE sp_RegistrarPaciente
+    @Dni CHAR(8), 
+    @Nom VARCHAR(100), 
+    @Pat VARCHAR(100), 
+    @Mat VARCHAR(100), 
+    @Cel VARCHAR(12), 
+    @Edad INT,
+    @Tra VARCHAR(20),
+    @Fec DATETIME
+AS
+BEGIN
+    INSERT INTO Paciente (Dni, Nombres, ApelPaterno, ApelMaterno, Celular, Edad, Traslado, FechaNacimiento)
+    VALUES (@Dni, @Nom, @Pat, @Mat, @Cel, @Edad, @Tra, @Fec);
+END;
+
+ALTER TABLE Paciente ADD NumeroOrden INT IDENTITY(1,1);
+GO
+
+
+SELECT IdPaciente AS NumeroOrden, Dni, Nombres, ...
+  FROM Paciente;
+
+  SELECT ROW_NUMBER() OVER (ORDER BY Dni) AS NumeroOrden, Dni, Nombres, ...
+  FROM Paciente;
+
+  ALTER TABLE Paciente ADD NumeroOrden INT NULL;
+
+  SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Paciente';
+
+
+  -- Si ya existe la columna pero no es automática, debemos recrearla
+	ALTER TABLE Paciente DROP COLUMN NumeroOrden;
+	ALTER TABLE Paciente ADD NumeroOrden INT IDENTITY(1,1); -- IDENTITY hace que sea 1, 2, 3...
+	GO
+
+
+ALTER TABLE Paciente
+ADD NumeroOrden INT IDENTITY(1,1) NOT NULL;
+
+
+
+
+CREATE OR ALTER PROCEDURE sp_RegistrarPaciente
+    @Dni CHAR(8), @Nom VARCHAR(100), @Pat VARCHAR(100), 
+    @Mat VARCHAR(100), @Cel VARCHAR(12), @Edad INT,
+    @Tra VARCHAR(20), @Fec DATETIME -- Parámetros que faltaban
+AS
+BEGIN
+    INSERT INTO Paciente (Dni, Nombres, ApelPaterno, ApelMaterno, Celular, Edad, Traslado, FechaNacimiento)
+    VALUES (@Dni, @Nom, @Pat, @Mat, @Cel, @Edad, @Tra, @Fec);
+END;
+
+select * from Paciente
+
+
+CREATE OR ALTER PROCEDURE sp_RegistrarPaciente
+    @Dni CHAR(8), @Nom VARCHAR(100), @Pat VARCHAR(100), @Mat VARCHAR(100), 
+    @Cel VARCHAR(12), @Edad INT, @Tra VARCHAR(20), @Fec DATETIME
+AS
+    INSERT INTO Paciente (Dni, Nombres, ApelPaterno, ApelMaterno, Celular, Edad, Traslado, FechaNacimiento)
+    VALUES (@Dni, @Nom, @Pat, @Mat, @Cel, @Edad, @Tra, @Fec);
+
+	select * from Emergencia
+
+SELECT TOP (1000) [Nombre]
+  FROM [ClinicaSanPablo].[dbo].[Medicamentos_Lista]
+
+
+  select
+ * from Emergencia
+  IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Paciente') AND name = 'Estado')
+BEGIN
+    ALTER TABLE Paciente ADD Estado VARCHAR(20) DEFAULT 'Estable';
+END
+GO
+
+SELECT DniPaciente, MotivoUrgencia, PersonalMedico, Estado, FechaIngreso FROM Emergencia
+
+ALTER TABLE Emergencia ADD PersonalMedico VARCHAR(100);
+ALTER TABLE Emergencia ADD Estado VARCHAR(50);
+ALTER TABLE Emergencia ADD FechaIngreso DATETIME;
+GO
+
+
+SELECT DniPaciente, MotivoUrgencia, PersonalMedico, Estado, FechaIngreso FROM Emergencia
+
+SELECT TOP 1 * FROM PersonalMedico;
+
+SELECT DniPaciente, MotivoUrgencia, FechaIngreso, NivelTriaje, Medicamento, Estado, PersonalMedico FROM Emergencia
